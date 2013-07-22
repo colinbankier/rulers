@@ -32,6 +32,6 @@ class RulersAppTest < Test::Unit::TestCase
 		controller = TestController.new({})
 		controller.index
 		instance_variables = controller.get_controller_locals()
-		puts instance_variables 
-		assert instance_variables[:@instance_var] == "Here!", instance_variables.to_s
+		assert instance_variables[:instance_var] == "Here!", instance_variables.to_s
+	end
 end
