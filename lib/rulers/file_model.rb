@@ -19,8 +19,8 @@ module Rulers
 
 				basename = File.split(filename)[-1]
 				@id = File.basename(basename, ".json").to_i
-
-				obj = File.read(self.class.relative_path(filename))
+				filepath = filename.start_with?("/") ? filename : self.class.relative_path(filename)
+				obj = File.read(filepath)
 				@hash = MultiJson.load(obj)
 			end
 
@@ -41,7 +41,7 @@ module Rulers
 			end
 
 			def self.all
-				files = Dir["db/quotes/*.json"]
+				files = Dir[relative_path("db/quotes/*.json")]
 				files.map { |f| FileModel.new f }
 			end
 
@@ -80,6 +80,28 @@ module Rulers
 }
 TEMPLATE
 				end
+			end
+
+			def self.method_missing(name, *args, &block)
+				puts "Method missing #{name}"
+				if name =~ /^find_all_by_(.*)/
+					find_all_by($1, *args)
+				else
+					super(name, *args, &block)
+				end
+			end
+
+			def self.find_all_by(field, value)
+				puts "Finding all #{field} #{value}"
+				puts all.to_s
+				all.select { |quote| 
+					puts "#{field}, #{value}, #{quote[field]}, #{quote[field] == value}"
+					quote[field] == value 
+				}
+			end
+
+			def respond_to_missing?(name, include_private = false)
+				name.start_with?('find_all_by_') || super
 			end
 		end
 	end

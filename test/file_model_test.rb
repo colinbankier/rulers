@@ -18,9 +18,9 @@ class FileModelTest < Test::Unit::TestCase
 
 	def test_should_save_new
 		hash = {
-			"submitter" => "test submitter like a person",
-			"quote" => "test quote like some words",
-			"attribution" => "test attribution like who dun it"
+			"submitter" => "test submitter",
+			"quote" => "test quote",
+			"attribution" => "test attribution"
 		}
 		FileModel.create(hash)
 		assert_has_content("db/quotes/1.json", hash)
@@ -53,6 +53,27 @@ class FileModelTest < Test::Unit::TestCase
 			"attribution" => "updated attribution"
 		}
 		assert_has_content("db/quotes/#{quote.id}.json", expected_content)
+	end
+
+	def test_should_find_by_attr
+		hash = {
+			"submitter" => "a person",
+			"quote" => "some words",
+			"attribution" => "old fogie"
+		}
+		FileModel.create(hash)	
+
+		quote_by_submitter = FileModel.find_all_by_submitter("a person").first
+		assert_quote_attributes(quote_by_submitter, hash)
+	end
+
+
+	private
+
+	def assert_quote_attributes(quote, hash)
+		hash.keys.each { |key|
+			assert quote[key] == hash[key]
+		}
 	end
 
 	def relative_path(filename)
